@@ -1,18 +1,19 @@
-
-name: Build Flutter Windows App
+name: Build Windows Flutter App
 
 on:
-  workflow_dispatch:
   push:
-    branches: [main]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-    name: Build for Windows
+  build_windows:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Flutter
@@ -20,21 +21,17 @@ jobs:
         with:
           flutter-version: 'stable'
 
-      - name: Enable Windows desktop
+      - name: Enable Windows desktop support
         run: flutter config --enable-windows-desktop
 
-      - name: Get dependencies
+      - name: Get Flutter dependencies
         run: flutter pub get
 
-      - name: Build Windows app
+      - name: Build Windows executable
         run: flutter build windows --release
 
-      - name: Zip build output
-        run: |
-          Compress-Archive -Path build/windows/runner/Release/* -DestinationPath build/windows_app.zip
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: windows_build
-          path: build/windows_app.zip
+          name: windows-build
+          path: build\windows\runner\Release\
